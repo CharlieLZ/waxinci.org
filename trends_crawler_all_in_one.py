@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # API配置
 API_LOGIN = "chen8mei@yeah.net"
 API_PASSWORD = "128216638d1a29af"
-API_BASE_URL = "https://api.dataforseo.com/v3/keywords_data/google_trends/explore"
+API_BASE_URL = "https://api.dataforseo.com/v3/keywords_data/google_trends/explore/live"
 
 def generate_google_trends_link(query, time_range="2024-01-01 2024-12-31"):
     """生成谷歌趋势链接"""
