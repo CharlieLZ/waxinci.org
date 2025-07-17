@@ -1,0 +1,149 @@
+name: 部署到GitHub Pages
+
+on:
+  # 在数据更新后触发部署
+  push:
+    branches: [ main ]
+    paths:
+      - 'trending_data.json'
+      - 'index.html'
+      - 'css/**'
+      - 'js/**'
+  
+  # 允许手动触发
+  workflow_dispatch:
+
+# 设置GitHub Pages部署权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置GitHub Pages
+      uses: actions/configure-pages@v4
+      
+    - name: 验证必要文件
+      run: |
+        echo "🔍 检查必要文件..."
+        
+        if [ ! -f "index.html" ]; then
+          echo "❌ 缺少 index.html 文件"
+          exit 1
+        fi
+        
+        if [ ! -f "trending_data.json" ]; then
+          echo "❌ 缺少 trending_data.json 文件"
+          exit 1
+        fi
+        
+        if [ ! -d "css" ]; then
+          echo "❌ 缺少 css 目录"
+          exit 1
+        fi
+        
+        if [ ! -d "js" ]; then
+          echo "❌ 缺少 js 目录"
+          exit 1
+        fi
+        
+        echo "✅ 所有必要文件检查通过"
+        
+        # 显示数据文件信息
+        echo "📊 数据文件信息:"
+        echo "文件大小: $(du -h trending_data.json | cut -f1)"
+        echo "最后修改: $(date -r trending_data.json)"
+        
+        # 验证JSON格式
+        if python -m json.tool trending_data.json > /dev/null 2>&1; then
+          echo "✅ JSON格式验证通过"
+        else
+          echo "❌ JSON格式验证失败"
+          exit 1
+        fi
+        
+    - name: 准备部署文件
+      run: |
+        echo "📦 准备部署文件..."
+        
+        # 创建临时部署目录
+        mkdir -p _site
+        
+        # 复制网站文件
+        cp index.html _site/
+        cp -r css _site/
+        cp -r js _site/
+        cp trending_data.json _site/
+        
+        # 创建简单的404页面
+        cat > _site/404.html << 'EOF'
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面未找到 - 谷歌趋势新词洞察</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #e74c3c; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404 - 页面未找到</h1>
+        <p>抱歉，您访问的页面不存在。</p>
+        <p><a href="/">返回首页</a></p>
+    </div>
+</body>
+</html>
+EOF
+        
+        echo "✅ 部署文件准备完成"
+        echo "📂 部署文件列表:"
+        ls -la _site/
+        
+    - name: 上传Pages文件
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '_site'
+        
+    - name: 部署到GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      
+    - name: 显示部署信息
+      run: |
+        echo "🎉 部署成功！"
+        echo "🌐 网站地址: ${{ steps.deployment.outputs.page_url }}"
+        echo "📊 数据API: ${{ steps.deployment.outputs.page_url }}trending_data.json"
+        echo "⏰ 部署时间: $(date)" 

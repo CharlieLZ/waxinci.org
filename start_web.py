@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
 """
-一键启动Web界面
-自动执行数据获取、格式转换和服务器启动
+生产环境Web服务启动脚本
+适配GitHub Pages和静态部署
 """
 
-import subprocess
-import sys
 import json
-import glob
 import os
 import time
 import threading
 import webbrowser
 from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from socketserver import TCPServer
 import socket
 
 def check_port(port):
@@ -34,73 +30,54 @@ def find_available_port(start_port=3000, max_attempts=10):
             return port
     return None
 
-def find_latest_data_file():
-    """查找最新的数据文件"""
-    pattern = "rising_only_trends_*.json"
-    files = glob.glob(pattern)
-    
-    if not files:
-        return None
-    
-    return max(files, key=os.path.getctime)
-
-def convert_data_format():
-    """转换数据格式为HTML期望的格式"""
-    latest_file = find_latest_data_file()
-    
-    if not latest_file:
-        print("❌ 未找到数据文件，请先运行数据获取")
+def validate_data_file():
+    """验证数据文件是否存在和有效"""
+    if not os.path.exists("trending_data.json"):
+        print("❌ 未找到trending_data.json文件")
+        print("💡 请先运行: python trends_crawler_all_in_one.py")
         return False
     
-    print(f"📄 使用数据文件: {latest_file}")
-    
-    # 读取原始数据
     try:
-        with open(latest_file, 'r', encoding='utf-8') as f:
-            source_data = json.load(f)
-    except Exception as e:
-        print(f"❌ 读取数据文件失败: {e}")
-        return False
-    
-    # 转换为HTML期望的格式
-    converted_data = {
-        "data": {},
-        "total_seeds": source_data.get("summary", {}).get("total_seed_keywords", 0),
-        "last_updated": source_data.get("metadata", {}).get("timestamp", datetime.now().isoformat())
-    }
-    
-    # 转换种子关键词数据
-    seed_keywords = source_data.get("seed_keywords", {})
-    for keyword, data in seed_keywords.items():
-        rising_queries = data.get("rising_queries", [])
+        with open("trending_data.json", 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
-        # 转换每个rising查询的格式
-        converted_rising = []
-        for query in rising_queries:
-            converted_query = {
-                "query": query.get("query", ""),
-                "value": query.get("growth_rate", 0),
-                "link": query.get("link", "")
-            }
-            converted_rising.append(converted_query)
+        # 验证数据结构
+        if not isinstance(data, dict):
+            print("❌ 数据格式错误：不是有效的JSON对象")
+            return False
         
-        # 只添加有数据的关键词
-        if converted_rising:
-            converted_data["data"][keyword] = {
-                "rising": converted_rising
-            }
-    
-    # 保存转换后的数据
-    try:
-        with open("trending_data.json", 'w', encoding='utf-8') as f:
-            json.dump(converted_data, f, ensure_ascii=False, indent=2)
+        required_fields = ['data', 'total_seeds', 'last_updated']
+        for field in required_fields:
+            if field not in data:
+                print(f"❌ 数据格式错误：缺少字段 '{field}'")
+                return False
         
-        print(f"✅ 数据格式转换完成")
-        print(f"📊 包含 {len(converted_data['data'])} 个有数据的关键词")
+        # 显示数据信息
+        print(f"✅ 数据文件验证通过")
+        print(f"📊 包含 {data['total_seeds']} 个种子词")
+        print(f"🕒 最后更新: {data['last_updated']}")
+        
+        # 检查数据是否过期（超过7天）
+        try:
+            last_update = datetime.fromisoformat(data['last_updated'].replace('Z', '+00:00'))
+            now = datetime.now()
+            days_old = (now - last_update).days
+            
+            if days_old > 7:
+                print(f"⚠️  数据已过期 {days_old} 天，建议更新")
+                print("💡 运行: python trends_crawler_all_in_one.py")
+            elif days_old > 0:
+                print(f"📅 数据更新于 {days_old} 天前")
+        except:
+            print("⚠️  无法解析更新时间")
+        
         return True
         
+    except json.JSONDecodeError:
+        print("❌ 数据文件格式错误：无效的JSON")
+        return False
     except Exception as e:
-        print(f"❌ 保存转换数据失败: {e}")
+        print(f"❌ 验证数据文件失败: {e}")
         return False
 
 def start_server(start_port=3000):
@@ -118,16 +95,15 @@ def start_server(start_port=3000):
         # 启动服务器
         httpd = HTTPServer(('localhost', port), SimpleHTTPRequestHandler)
         print(f"🚀 HTTP服务器启动成功")
-        print(f"📍 地址: http://localhost:{port}")
-        print(f"🌐 优化版界面: http://localhost:{port}/waxinci-trends-optimized.html")
-        print(f"🌐 原版界面: http://localhost:{port}/waxinci-trends.html")
+        print(f"📍 本地地址: http://localhost:{port}")
         print(f"📊 数据API: http://localhost:{port}/trending_data.json")
+        print(f"🌐 网站界面: http://localhost:{port}/index.html")
         print(f"\n按 Ctrl+C 停止服务器")
         
         # 延迟打开浏览器
         def open_browser():
             time.sleep(2)
-            webbrowser.open(f"http://localhost:{port}/waxinci-trends-optimized.html")
+            webbrowser.open(f"http://localhost:{port}/index.html")
         
         threading.Thread(target=open_browser, daemon=True).start()
         
@@ -143,62 +119,21 @@ def start_server(start_port=3000):
 
 def main():
     """主函数"""
-    print("🚀 谷歌趋势新词洞察 - 一键启动")
+    print("🌐 谷歌趋势新词洞察 - Web服务启动")
     print("=" * 50)
     
-    # 步骤1：检查或获取数据
-    print("\n📊 检查数据文件...")
-    latest_file = find_latest_data_file()
-    
-    if not latest_file:
-        print("📥 未找到数据文件，开始获取最新数据...")
-        try:
-            result = subprocess.run([sys.executable, "rising_only_trends.py"], 
-                                  capture_output=True, text=True, timeout=300)
-            if result.returncode == 0:
-                print("✅ 数据获取成功")
-            else:
-                print(f"❌ 数据获取失败: {result.stderr}")
-                return
-        except subprocess.TimeoutExpired:
-            print("❌ 数据获取超时（5分钟）")
-            return
-        except Exception as e:
-            print(f"❌ 数据获取异常: {e}")
-            return
-    else:
-        # 检查数据文件是否太旧（超过1天）
-        file_time = os.path.getctime(latest_file)
-        current_time = time.time()
-        
-        if current_time - file_time > 24 * 3600:  # 24小时
-            print(f"⚠️  数据文件较旧 ({latest_file})，建议更新")
-            update = input("是否获取最新数据? (y/N): ").lower().strip()
-            
-            if update == 'y':
-                print("📥 获取最新数据...")
-                try:
-                    result = subprocess.run([sys.executable, "rising_only_trends.py"], 
-                                          capture_output=True, text=True, timeout=300)
-                    if result.returncode == 0:
-                        print("✅ 数据更新成功")
-                    else:
-                        print(f"❌ 数据更新失败: {result.stderr}")
-                        print("⚠️  将使用现有数据")
-                except Exception as e:
-                    print(f"❌ 数据更新异常: {e}")
-                    print("⚠️  将使用现有数据")
-        else:
-            print(f"✅ 发现较新的数据文件: {latest_file}")
-    
-    # 步骤2：转换数据格式
-    print("\n🔄 转换数据格式...")
-    if not convert_data_format():
-        print("❌ 数据格式转换失败，程序退出")
+    # 验证数据文件
+    print("\n📊 验证数据文件...")
+    if not validate_data_file():
+        print("\n💡 生产环境部署说明:")
+        print("1. 确保trending_data.json文件存在")
+        print("2. 使用GitHub Actions定时运行数据更新")
+        print("3. 静态文件部署到GitHub Pages")
         return
     
-    # 步骤3：启动Web服务器
-    print("\n🌐 启动Web服务器...")
+    # 启动Web服务器（仅用于本地开发）
+    print("\n🌐 启动本地开发服务器...")
+    print("💡 生产环境请使用GitHub Pages或其他静态托管服务")
     start_server()
 
 if __name__ == "__main__":

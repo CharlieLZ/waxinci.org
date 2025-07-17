@@ -30,12 +30,6 @@ API_LOGIN = "chen8mei@yeah.net"
 API_PASSWORD = "128216638d1a29af"
 API_BASE_URL = "https://api.dataforseo.com/v3/keywords_data/google_trends/explore"
 
-def get_auth_header():
-    """获取认证头"""
-    credentials = f"{API_LOGIN}:{API_PASSWORD}"
-    encoded_credentials = base64.b64encode(credentials.encode()).decode()
-    return {"Authorization": f"Basic {encoded_credentials}", "Content-Type": "application/json"}
-
 def generate_google_trends_link(query, time_range="2024-01-01 2024-12-31"):
     """生成谷歌趋势链接"""
     base_url = "https://trends.google.com/trends/explore"
@@ -138,7 +132,7 @@ def process_api_response(api_result, time_range="2024-01-01 2024-12-31"):
     """处理API响应数据，转换为网站格式"""
     if not api_result or not api_result.get('tasks'):
         logger.warning("API结果为空或格式不正确")
-        return []
+        return {}
     
     processed_data = {}
     
@@ -183,6 +177,7 @@ def process_api_response(api_result, time_range="2024-01-01 2024-12-31"):
             processed_data[keyword] = {
                 "rising": rising_queries
             }
+            logger.info(f"✅ 处理完成: {keyword} ({len(rising_queries)} 个rising查询)")
     
     return processed_data
 
@@ -195,10 +190,10 @@ def save_website_data(data, filename="trending_data.json"):
         
         # 构建网站格式数据
         website_data = {
-            "last_updated": datetime.now().isoformat(),
+            "data": data,
             "total_seeds": total_seeds,
             "total_queries": total_queries,
-            "data": data
+            "last_updated": datetime.now().isoformat()
         }
         
         # 保存到文件
@@ -212,22 +207,6 @@ def save_website_data(data, filename="trending_data.json"):
         
     except Exception as e:
         logger.error(f"保存网站数据失败: {e}")
-        return False
-
-def save_detailed_data(data, filename=None):
-    """保存详细数据（用于备份和调试）"""
-    if not filename:
-        filename = f"detailed_trends_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        
-        logger.info(f"✅ 详细数据已保存到: {filename}")
-        return True
-        
-    except Exception as e:
-        logger.error(f"保存详细数据失败: {str(e)}")
         return False
 
 def main():

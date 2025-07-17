@@ -1,0 +1,81 @@
+name: 更新谷歌趋势数据
+
+on:
+  schedule:
+    # 每周一的北京时间上午9点运行 (UTC时间1点)
+    - cron: '0 1 * * 1'
+  
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  update-trends:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+        
+    - name: 运行趋势数据更新
+      run: |
+        python trends_crawler_all_in_one.py
+        
+    - name: 验证生成的数据
+      run: |
+        if [ -f "trending_data.json" ]; then
+          echo "✅ trending_data.json 文件生成成功"
+          echo "📊 文件大小: $(du -h trending_data.json | cut -f1)"
+          echo "📝 数据预览:"
+          head -20 trending_data.json
+        else
+          echo "❌ trending_data.json 文件未生成"
+          exit 1
+        fi
+        
+    - name: 提交更新的数据
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add trending_data.json
+        
+        # 检查是否有变化
+        if git diff --staged --quiet; then
+          echo "📊 数据无变化，跳过提交"
+        else
+          git commit -m "🔄 自动更新谷歌趋势数据 - $(date +'%Y-%m-%d %H:%M:%S')"
+          git push
+          echo "✅ 数据更新已提交"
+        fi
+        
+    - name: 清理临时文件
+      run: |
+        # 清理日志文件
+        rm -f trends_crawler.log
+        # 清理其他临时文件
+        rm -f rising_only_trends_*.json
+        
+    - name: 显示更新统计
+      run: |
+        echo "🎯 更新完成统计："
+        echo "📅 更新时间: $(date)"
+        echo "📊 数据文件: trending_data.json"
+        if [ -f "trending_data.json" ]; then
+          python -c "
+import json
+with open('trending_data.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
+print(f'📈 种子关键词: {data[\"total_seeds\"]}')
+print(f'🔍 相关查询: {data[\"total_queries\"]}')
+print(f'⏰ 最后更新: {data[\"last_updated\"]}')
+"
+        fi 
