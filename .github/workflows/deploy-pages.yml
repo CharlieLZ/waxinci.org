@@ -8,7 +8,6 @@ on:
       - 'trending_data.json'
       - 'index.html'
       - 'css/**'
-      - 'js/**'
   
   # 允许手动触发
   workflow_dispatch:
@@ -57,10 +56,7 @@ jobs:
           exit 1
         fi
         
-        if [ ! -d "js" ]; then
-          echo "❌ 缺少 js 目录"
-          exit 1
-        fi
+
         
         echo "✅ 所有必要文件检查通过"
         
