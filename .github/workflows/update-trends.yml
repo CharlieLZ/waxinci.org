@@ -28,7 +28,7 @@ jobs:
         
     - name: 运行趋势数据更新
       run: |
-        python trends_crawler_all_in_one.py
+        python trends_rising.py
         
     - name: 验证生成的数据
       run: |
