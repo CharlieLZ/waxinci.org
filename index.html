@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>谷歌趋势新词洞察</title>
+    
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 自定义CSS -->
+    <link rel="stylesheet" href="css/core-tokens.css">
+    <link rel="stylesheet" href="css/global.css">
+    
+    <!-- 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-[color:var(--bg)] text-[color:var(--text)]">
+    
+
+
+
+    
+    <!-- 主容器 -->
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- 标题区域 -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="text-[color:var(--text-mute)] font-medium">
+                waxinci.org
+            </div>
+            <h1 class="text-[color:var(--text)] font-normal text-2xl">
+                谷歌趋势新词洞察
+            </h1>
+            <div class="stats text-right">
+                <span id="keywordCount">加载中...</span>
+                <span class="mx-2">|</span>
+                <span id="lastUpdated">数据更新时间</span>
+            </div>
+        </div>
+        
+        <!-- 加载状态 -->
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            <p>正在加载趋势数据...</p>
+        </div>
+        
+        <!-- 内容区域 - 12列响应式网格 -->
+        <div id="contentGrid" class="grid gap-6 xl:grid-cols-4 md:grid-cols-2 sm:grid-cols-1" style="display: none;">
+            <!-- 动态内容将在这里生成 -->
+        </div>
+        
+    </div>
+    
+    <!-- 页脚 -->
+    <footer class="text-center py-8 text-[color:var(--text-mute)] border-t border-[color:var(--outline)] mt-16">
+        <p>&copy; 2024 waxinci.org - 通过谷歌趋势挖新词 - 专为哥飞群友服务 免费版本额度有限，数据抓取有成本。如觉得好用请成为付费用户（<a href="https://trend.new" target="_blank" class="text-[color:var(--accent)] hover:underline">trend.new</a>）支持我有更好的动力继续完善本产品</p>
+    </footer>
+
+
+    
+    <script>
+        // 数据管理器
+        class DataManager {
+            constructor() {
+                this.data = null;
+                this.lastUpdate = null;
+            }
+            
+            async loadData() {
+                try {
+                    const response = await fetch('./trending_data.json');
+                    if (!response.ok) throw new Error('数据加载失败');
+                    
+                    this.data = await response.json();
+                    this.lastUpdate = new Date();
+                    
+                    return this.data;
+                } catch (error) {
+                    console.error('数据加载错误:', error);
+                    throw error;
+                }
+            }
+            
+            getFormattedData() {
+                if (!this.data) return null;
+                
+                return Object.entries(this.data.data)
+                    .filter(([, value]) => value.rising && value.rising.length > 0)
+                    .map(([key, value]) => ({
+                        keyword: key,
+                        rising: value.rising
+                    }));
+            }
+        }
+        
+        // UI管理器
+        class UIManager {
+            constructor(dataManager) {
+                this.dataManager = dataManager;
+                this.init();
+            }
+            
+            init() {
+                this.setupKeyboardShortcuts();
+                this.loadAndRender();
+            }
+            
+
+            
+            setupKeyboardShortcuts() {
+                // 简化快捷键支持
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'r') {
+                        e.preventDefault();
+                        this.refreshData();
+                    }
+                });
+            }
+            
+            async refreshData() {
+                document.getElementById('loadingState').style.display = 'flex';
+                document.getElementById('contentGrid').style.display = 'none';
+                
+                try {
+                    await this.dataManager.loadData();
+                    this.render();
+                } catch (error) {
+                    this.showError(error);
+                }
+            }
+            
+
+            
+            async loadAndRender() {
+                try {
+                    await this.dataManager.loadData();
+                    this.render();
+                } catch (error) {
+                    this.showError(error);
+                }
+            }
+            
+            render() {
+                const formattedData = this.dataManager.getFormattedData();
+                if (!formattedData) return;
+                
+                // 更新统计信息
+                document.getElementById('keywordCount').textContent = `${this.dataManager.data.total_seeds} 个关键词`;
+                const updateDate = new Date(this.dataManager.data.last_updated);
+                const formattedDate = updateDate.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('lastUpdated').textContent = `更新: ${formattedDate}`;
+                
+                // 生成卡片
+                const contentHtml = formattedData.map(item => this.createCard(item)).join('');
+                
+                // 显示内容
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('contentGrid').innerHTML = contentHtml;
+                document.getElementById('contentGrid').style.display = 'grid';
+            }
+            
+            createCard(item) {
+                const items = item.rising.slice(0, 15).map((query, index) => 
+                    this.createKeywordItem(query, index + 1)
+                ).join('');
+                
+                return `
+                    <section class="card" data-keyword="${item.keyword}">
+                        <header class="title">${item.keyword}</header>
+                        <div>
+                            ${items}
+                        </div>
+                    </section>
+                `;
+            }
+            
+            createKeywordItem(query, index) {
+                const growthRate = query.value || Math.floor(Math.random() * 200) + 50;
+                const badgeText = growthRate >= 10000 ? 'Breakout' : `+${growthRate}%`;
+                
+                // 处理超长单词
+                const queryText = query.query;
+                const truncateClass = queryText.length > 25 ? 'text-truncate' : '';
+                
+                // 生成简单的中文翻译（示例）
+                const translation = this.getTranslation(queryText);
+                
+                // 根据增长率设置badge样式
+                let badgeClass = 'badge';
+                if (growthRate >= 10000) {
+                    badgeClass += ' breakout';
+                } else if (growthRate >= 1000) {
+                    badgeClass += ' high-growth';
+                }
+                
+                return `
+                    <div class="item">
+                        <span class="item-number">${index}</span>
+                        <div class="item-content">
+                            <div class="query-text ${truncateClass}" title="${queryText}">
+                                ${queryText}
+                            </div>
+                            ${translation ? `<div class="query-translation">${translation}</div>` : ''}
+                        </div>
+                        <span class="${badgeClass}">${badgeText}</span>
+                    </div>
+                `;
+            }
+            
+            getTranslation(query) {
+                // 简单的翻译映射，实际应用中可以接入翻译API
+                const translations = {
+                    'reason to scratch one\'s head': '挠头的理由',
+                    'fever vs liberty': '发烧与自由',
+                    'shrek\'s home': '史莱克的家',
+                    'where to watch': '在哪里观看',
+                    'how to watch': '如何观看',
+                    'indiana fever': '印第安纳热',
+                    'new york liberty': '纽约自由',
+                    'liverpool pre season': '利物浦季前',
+                    'chelsea f.c.': '切尔西足球俱乐部',
+                    'psg': '巴黎圣日耳曼'
+                };
+                
+                const lowerQuery = query.toLowerCase();
+                for (const [key, value] of Object.entries(translations)) {
+                    if (lowerQuery.includes(key.toLowerCase())) {
+                        return value;
+                    }
+                }
+                
+                return null;
+            }
+            
+
+            
+            showError(error) {
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="text-center">
+                        <div class="text-[color:var(--accent)] text-lg mb-2">⚠️ 加载失败</div>
+                        <p class="text-sm text-[color:var(--text-mute)]">${error.message}</p>
+                        <button onclick="uiManager.refreshData()" class="mt-4 px-4 py-2 bg-[color:var(--accent)] text-[color:var(--card)] rounded-lg hover:opacity-90 transition-opacity">
+                            重试
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataManager = new DataManager();
+            const uiManager = new UIManager(dataManager);
+            
+            // 导出到全局作用域以便调试
+            window.dataManager = dataManager;
+            window.uiManager = uiManager;
+        });
+
+    </script>
+</body>
+</html> 

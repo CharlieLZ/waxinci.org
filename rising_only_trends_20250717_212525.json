@@ -1,0 +1,649 @@
+{
+  "metadata": {
+    "date": "2025-07-17",
+    "timestamp": "2025-07-17T21:25:25.907250",
+    "time_range": "past_7_days",
+    "api_info": {
+      "rising_value_meaning": "增长率百分比 (整数) 或 BREAKOUT (突破性增长)",
+      "gpts_meaning": "Google Trends 趋势分数 (0-100)，数值越高表示越热门"
+    },
+    "description": "只包含Rising查询的Google Trends数据"
+  },
+  "summary": {
+    "total_seed_keywords": 10,
+    "processed_keywords": 10,
+    "total_rising_queries": 81,
+    "keywords_with_rising": 10,
+    "completion_rate": "100.0%",
+    "avg_gpts": "79.2"
+  },
+  "seed_keywords": {
+    "assistant": {
+      "gpts": 92,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "assistant central intelligence officer",
+          "growth_rate": 3300,
+          "growth_rate_formatted": "+3300%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=assistant+central+intelligence+officer"
+        },
+        {
+          "query": "literary assistant crossword clue",
+          "growth_rate": 3150,
+          "growth_rate_formatted": "+3150%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=literary+assistant+crossword+clue"
+        },
+        {
+          "query": "srinidhi assistant manager post",
+          "growth_rate": 450,
+          "growth_rate_formatted": "+450%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=srinidhi+assistant+manager+post"
+        },
+        {
+          "query": "joe burrow assistant",
+          "growth_rate": 450,
+          "growth_rate_formatted": "+450%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=joe+burrow+assistant"
+        },
+        {
+          "query": "assistant election commissioner jobs 2025",
+          "growth_rate": 160,
+          "growth_rate_formatted": "+160%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=assistant+election+commissioner+jobs+2025"
+        },
+        {
+          "query": "literary assistant",
+          "growth_rate": 160,
+          "growth_rate_formatted": "+160%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=literary+assistant"
+        },
+        {
+          "query": "assistant election commissioner",
+          "growth_rate": 130,
+          "growth_rate_formatted": "+130%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=assistant+election+commissioner"
+        },
+        {
+          "query": "assistant election commissioner jobs",
+          "growth_rate": 120,
+          "growth_rate_formatted": "+120%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=assistant+election+commissioner+jobs"
+        },
+        {
+          "query": "online medical assistant programs",
+          "growth_rate": 110,
+          "growth_rate_formatted": "+110%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=online+medical+assistant+programs"
+        },
+        {
+          "query": "certified nursing assistant",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=certified+nursing+assistant"
+        }
+      ]
+    },
+    "helper": {
+      "gpts": 88,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "catch the king helper",
+          "growth_rate": 1300,
+          "growth_rate_formatted": "+1300%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=catch+the+king+helper"
+        },
+        {
+          "query": "xdebug helper",
+          "growth_rate": 250,
+          "growth_rate_formatted": "+250%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=xdebug+helper"
+        },
+        {
+          "query": "modal",
+          "growth_rate": 200,
+          "growth_rate_formatted": "+200%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=modal"
+        },
+        {
+          "query": "spicy hamburger helper",
+          "growth_rate": 130,
+          "growth_rate_formatted": "+130%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=spicy+hamburger+helper"
+        },
+        {
+          "query": "santa's helper outfit",
+          "growth_rate": 110,
+          "growth_rate_formatted": "+110%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=santa%27s+helper+outfit"
+        },
+        {
+          "query": "money helper website",
+          "growth_rate": 90,
+          "growth_rate_formatted": "+90%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=money+helper+website"
+        },
+        {
+          "query": "umamusume event helper",
+          "growth_rate": 80,
+          "growth_rate_formatted": "+80%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=umamusume+event+helper"
+        },
+        {
+          "query": "mta electrical helper",
+          "growth_rate": 80,
+          "growth_rate_formatted": "+80%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=mta+electrical+helper"
+        },
+        {
+          "query": "santa's little helper cast",
+          "growth_rate": 80,
+          "growth_rate_formatted": "+80%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=santa%27s+little+helper+cast"
+        },
+        {
+          "query": "skinnytaste hamburger helper",
+          "growth_rate": 80,
+          "growth_rate_formatted": "+80%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=skinnytaste+hamburger+helper"
+        }
+      ]
+    },
+    "generator": {
+      "gpts": 85,
+      "rising_queries_count": 3,
+      "rising_queries": [
+        {
+          "query": "discard number generator",
+          "growth_rate": 80,
+          "growth_rate_formatted": "+80%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=discard+number+generator"
+        },
+        {
+          "query": "grow a garden",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=grow+a+garden"
+        },
+        {
+          "query": "grow a garden generator",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=grow+a+garden+generator"
+        }
+      ]
+    },
+    "maker": {
+      "gpts": 82,
+      "rising_queries_count": 5,
+      "rising_queries": [
+        {
+          "query": "police sketch maker",
+          "growth_rate": 1800,
+          "growth_rate_formatted": "+1800%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=police+sketch+maker"
+        },
+        {
+          "query": "00020101021126880014br.gov.bcb.pix0136a13c98d7-70f6-47a5-bcd8-8e9c7bbc10780226consulte o titulo no site.520400005303986540510.005802br5919idea maker solution6009sao paulo620605021263045403",
+          "growth_rate": 1500,
+          "growth_rate_formatted": "+1500%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=00020101021126880014br.gov.bcb.pix0136a13c98d7-70f6-47a5-bcd8-8e9c7bbc10780226consulte+o+titulo+no+site.520400005303986540510.005802br5919idea+maker+solution6009sao+paulo620605021263045403"
+        },
+        {
+          "query": "peace maker",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=peace+maker"
+        },
+        {
+          "query": "cutout pro passport photo maker",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=cutout+pro+passport+photo+maker"
+        },
+        {
+          "query": "cutout pro",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=cutout+pro"
+        }
+      ]
+    },
+    "agent": {
+      "gpts": 80,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "undercover estate agent",
+          "growth_rate": 1700,
+          "growth_rate_formatted": "+1700%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=undercover+estate+agent"
+        },
+        {
+          "query": "bedrock agent core",
+          "growth_rate": 1150,
+          "growth_rate_formatted": "+1150%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=bedrock+agent+core"
+        },
+        {
+          "query": "aws agent core",
+          "growth_rate": 750,
+          "growth_rate_formatted": "+750%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=aws+agent+core"
+        },
+        {
+          "query": "allstate insurance agent",
+          "growth_rate": 550,
+          "growth_rate_formatted": "+550%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=allstate+insurance+agent"
+        },
+        {
+          "query": "ck444 agent",
+          "growth_rate": 350,
+          "growth_rate_formatted": "+350%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=ck444+agent"
+        },
+        {
+          "query": "coloring agent crossword",
+          "growth_rate": 300,
+          "growth_rate_formatted": "+300%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=coloring+agent+crossword"
+        },
+        {
+          "query": "the station agent izle",
+          "growth_rate": 250,
+          "growth_rate_formatted": "+250%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=the+station+agent+izle"
+        },
+        {
+          "query": "agent 355",
+          "growth_rate": 140,
+          "growth_rate_formatted": "+140%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=agent+355"
+        },
+        {
+          "query": "agent 747",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=agent+747"
+        },
+        {
+          "query": "rogue agent",
+          "growth_rate": 60,
+          "growth_rate_formatted": "+60%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=rogue+agent"
+        }
+      ]
+    },
+    "creator": {
+      "gpts": 78,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "style creator crossword clue",
+          "growth_rate": 13850,
+          "growth_rate_formatted": "+13850%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=style+creator+crossword+clue"
+        },
+        {
+          "query": "voided crossword clue",
+          "growth_rate": 9900,
+          "growth_rate_formatted": "+9900%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=voided+crossword+clue"
+        },
+        {
+          "query": "extend crossword clue",
+          "growth_rate": 8800,
+          "growth_rate_formatted": "+8800%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=extend+crossword+clue"
+        },
+        {
+          "query": "risk crossword clue",
+          "growth_rate": 6150,
+          "growth_rate_formatted": "+6150%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=risk+crossword+clue"
+        },
+        {
+          "query": "waist length garment crossword clue",
+          "growth_rate": 5900,
+          "growth_rate_formatted": "+5900%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=waist+length+garment+crossword+clue"
+        },
+        {
+          "query": "spout crossword clue",
+          "growth_rate": 4850,
+          "growth_rate_formatted": "+4850%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=spout+crossword+clue"
+        },
+        {
+          "query": "asian river crossword clue",
+          "growth_rate": 4100,
+          "growth_rate_formatted": "+4100%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=asian+river+crossword+clue"
+        },
+        {
+          "query": "surrender crossword clue",
+          "growth_rate": 3800,
+          "growth_rate_formatted": "+3800%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=surrender+crossword+clue"
+        },
+        {
+          "query": "personification of good fortune 4 4",
+          "growth_rate": 3200,
+          "growth_rate_formatted": "+3200%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=personification+of+good+fortune+4+4"
+        },
+        {
+          "query": "beetle bailey creator",
+          "growth_rate": 2650,
+          "growth_rate_formatted": "+2650%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=beetle+bailey+creator"
+        }
+      ]
+    },
+    "advisor": {
+      "gpts": 77,
+      "rising_queries_count": 3,
+      "rising_queries": [
+        {
+          "query": "charles schwab robo advisor",
+          "growth_rate": 70,
+          "growth_rate_formatted": "+70%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=charles+schwab+robo+advisor"
+        },
+        {
+          "query": "northwestern mutual financial advisor",
+          "growth_rate": 40,
+          "growth_rate_formatted": "+40%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=northwestern+mutual+financial+advisor"
+        },
+        {
+          "query": "financial company",
+          "growth_rate": 40,
+          "growth_rate_formatted": "+40%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=financial+company"
+        }
+      ]
+    },
+    "builder": {
+      "gpts": 75,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "builder sucked into plane engine",
+          "growth_rate": 1750,
+          "growth_rate_formatted": "+1750%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=builder+sucked+into+plane+engine"
+        },
+        {
+          "query": "gbf class builder",
+          "growth_rate": 250,
+          "growth_rate_formatted": "+250%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=gbf+class+builder"
+        },
+        {
+          "query": "orchids ai website builder",
+          "growth_rate": 200,
+          "growth_rate_formatted": "+200%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=orchids+ai+website+builder"
+        },
+        {
+          "query": "orchids",
+          "growth_rate": 200,
+          "growth_rate_formatted": "+200%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=orchids"
+        },
+        {
+          "query": "orchids website builder",
+          "growth_rate": 190,
+          "growth_rate_formatted": "+190%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=orchids+website+builder"
+        },
+        {
+          "query": "godaddy web builder",
+          "growth_rate": 110,
+          "growth_rate_formatted": "+110%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=godaddy+web+builder"
+        },
+        {
+          "query": "deck ai",
+          "growth_rate": 100,
+          "growth_rate_formatted": "+100%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=deck+ai"
+        },
+        {
+          "query": "easy website builder",
+          "growth_rate": 90,
+          "growth_rate_formatted": "+90%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=easy+website+builder"
+        },
+        {
+          "query": "ea team builder 26",
+          "growth_rate": 50,
+          "growth_rate_formatted": "+50%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=ea+team+builder+26"
+        },
+        {
+          "query": "teambuilder 26",
+          "growth_rate": 50,
+          "growth_rate_formatted": "+50%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=teambuilder+26"
+        }
+      ]
+    },
+    "constructor": {
+      "gpts": 70,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "constructor de instrumentos musicales de cuerda",
+          "growth_rate": 28300,
+          "growth_rate_formatted": "+28300%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=constructor+de+instrumentos+musicales+de+cuerda"
+        },
+        {
+          "query": "constructor de instrumentos de cuerda",
+          "growth_rate": 11500,
+          "growth_rate_formatted": "+11500%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=constructor+de+instrumentos+de+cuerda"
+        },
+        {
+          "query": "diosa de la luna masai",
+          "growth_rate": 8000,
+          "growth_rate_formatted": "+8000%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=diosa+de+la+luna+masai"
+        },
+        {
+          "query": "constructor instrumentos de cuerda",
+          "growth_rate": 7850,
+          "growth_rate_formatted": "+7850%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=constructor+instrumentos+de+cuerda"
+        },
+        {
+          "query": "ainhoa arbizu",
+          "growth_rate": 3500,
+          "growth_rate_formatted": "+3500%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=ainhoa+arbizu"
+        },
+        {
+          "query": "constructor de instrumentos de cuerdas",
+          "growth_rate": 2900,
+          "growth_rate_formatted": "+2900%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=constructor+de+instrumentos+de+cuerdas"
+        },
+        {
+          "query": "luthier",
+          "growth_rate": 350,
+          "growth_rate_formatted": "+350%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=luthier"
+        },
+        {
+          "query": "add a private constructor to hide the implicit public one.",
+          "growth_rate": 170,
+          "growth_rate_formatted": "+170%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=add+a+private+constructor+to+hide+the+implicit+public+one."
+        },
+        {
+          "query": "sapura constructor",
+          "growth_rate": 170,
+          "growth_rate_formatted": "+170%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=sapura+constructor"
+        },
+        {
+          "query": "constructor de instrumentos de cuerda codycross",
+          "growth_rate": 160,
+          "growth_rate_formatted": "+160%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=constructor+de+instrumentos+de+cuerda+codycross"
+        }
+      ]
+    },
+    "composer": {
+      "gpts": 65,
+      "rising_queries_count": 10,
+      "rising_queries": [
+        {
+          "query": "kiss me mucho",
+          "growth_rate": 27400,
+          "growth_rate_formatted": "+27400%",
+          "rank": 1,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=kiss+me+mucho"
+        },
+        {
+          "query": "french composer erik nyt",
+          "growth_rate": 25850,
+          "growth_rate_formatted": "+25850%",
+          "rank": 2,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=french+composer+erik+nyt"
+        },
+        {
+          "query": "father of english history",
+          "growth_rate": 24900,
+          "growth_rate_formatted": "+24900%",
+          "rank": 3,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=father+of+english+history"
+        },
+        {
+          "query": "state bird minnesota",
+          "growth_rate": 19350,
+          "growth_rate_formatted": "+19350%",
+          "rank": 4,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=state+bird+minnesota"
+        },
+        {
+          "query": "the father of english history",
+          "growth_rate": 19000,
+          "growth_rate_formatted": "+19000%",
+          "rank": 5,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=the+father+of+english+history"
+        },
+        {
+          "query": "oklahoma composer crossword",
+          "growth_rate": 16300,
+          "growth_rate_formatted": "+16300%",
+          "rank": 6,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=oklahoma+composer+crossword"
+        },
+        {
+          "query": "austrian symphonic composer",
+          "growth_rate": 14850,
+          "growth_rate_formatted": "+14850%",
+          "rank": 7,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=austrian+symphonic+composer"
+        },
+        {
+          "query": "varda director",
+          "growth_rate": 14650,
+          "growth_rate_formatted": "+14650%",
+          "rank": 8,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=varda+director"
+        },
+        {
+          "query": "john maynard keynes",
+          "growth_rate": 14600,
+          "growth_rate_formatted": "+14600%",
+          "rank": 9,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=john+maynard+keynes"
+        },
+        {
+          "query": "lip gloss rapper",
+          "growth_rate": 14000,
+          "growth_rate_formatted": "+14000%",
+          "rank": 10,
+          "link": "https://trends.google.com/trends/explore?hl=en&date=now%25207-d&q=lip+gloss+rapper"
+        }
+      ]
+    }
+  }
+}

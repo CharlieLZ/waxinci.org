@@ -1,0 +1,56 @@
+/* core-tokens.css - 谷歌趋势风格简洁配色 */
+:root {                     /* —— 浅色主题 —— */
+  --bg:            #FFFFFF;
+  --card:          #FFFFFF;
+  --accent:        #1a73e8;
+  --accent-2:      #4285f4;
+  --text:          #202124;
+  --text-mute:     #5f6368;
+  --outline:       #e8eaed;
+  
+  --shadow:        none;
+  --shadow-sm:     none;
+  --shadow-lg:     none;
+}
+
+[data-theme="dark"]{        /* —— 深色主题 —— */
+  --bg:            #202124;
+  --card:          #303134;
+  --accent:        #8ab4f8;
+  --accent-2:      #aecbfa;
+  --text:          #e8eaed;
+  --text-mute:     #9aa0a6;
+  --outline:       #5f6368;
+  
+  --shadow:        none;
+  --shadow-sm:     none;
+  --shadow-lg:     none;
+} 
+
+[data-theme="moss-night"] { /* —— 苔藓夜晚主题 —— */
+  --bg:            #0E1110;
+  --card:          #171A18;
+  --accent:        #5FB97C;
+  --accent-2:      #9FD8B0;
+  --text:          #E5EDE6;
+  --text-mute:     #9BAC9F;
+  --outline:       #2B322D;
+  
+  --shadow:        none;
+  --shadow-sm:     none;
+  --shadow-lg:     none;
+}
+
+[data-theme="latte-dark"] { /* —— 拿铁深色主题 —— */
+  --bg:            #1B1A17;
+  --card:          #242321;
+  --accent:        #D0A962;
+  --accent-2:      #E1C792;
+  --text:          #F5F4EF;
+  --text-mute:     #B8B2A7;
+  --outline:       #3A3732;
+  
+  --shadow:        none;
+  --shadow-sm:     none;
+  --shadow-lg:     none;
+} 
