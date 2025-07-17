@@ -196,12 +196,15 @@
             }
             
             createKeywordItem(query, index) {
-                const growthRate = query.value || Math.floor(Math.random() * 200) + 50;
+                const growthRate = query.value || query.numeric_value || Math.floor(Math.random() * 200) + 50;
                 const badgeText = growthRate >= 10000 ? 'Breakout' : `+${growthRate}%`;
                 
                 // 处理超长单词
                 const queryText = query.query;
                 const truncateClass = queryText.length > 25 ? 'text-truncate' : '';
+                
+                // 生成谷歌搜索链接
+                const searchLink = query.search_link || `https://www.google.com/search?q=${encodeURIComponent(queryText)}`;
                 
                 // 生成简单的中文翻译（示例）
                 const translation = this.getTranslation(queryText);
@@ -218,10 +221,13 @@
                     <div class="item">
                         <span class="item-number">${index}</span>
                         <div class="item-content">
-                            <div class="query-text ${truncateClass}" title="${queryText}">
-                                ${queryText}
-                            </div>
-                            ${translation ? `<div class="query-translation">${translation}</div>` : ''}
+                            <a href="${searchLink}" target="_blank" rel="noopener noreferrer" 
+                               class="query-link">
+                                <div class="query-text ${truncateClass}" title="${queryText}">
+                                    ${queryText}
+                                </div>
+                                ${translation ? `<div class="query-translation">${translation}</div>` : ''}
+                            </a>
                         </div>
                         <span class="${badgeClass}">${badgeText}</span>
                     </div>

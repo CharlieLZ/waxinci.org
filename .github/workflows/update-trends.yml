@@ -2,11 +2,24 @@ name: 更新谷歌趋势数据
 
 on:
   schedule:
-    # 每周一的北京时间上午9点运行 (UTC时间1点)
+    # 每周一的北京时间上午9点运行 (UTC时间1点) - 主要更新
     - cron: '0 1 * * 1'
+    # 每周四的北京时间晚上10点运行 (UTC时间14点) - 中期更新
+    - cron: '0 14 * * 4'
   
   # 允许手动触发
   workflow_dispatch:
+    inputs:
+      use_history:
+        description: '使用历史查询模式（更快，更省钱）'
+        required: false
+        default: 'false'
+        type: boolean
+      max_tasks:
+        description: '最大处理任务数量（成本控制）'
+        required: false
+        default: '100'
+        type: string
 
 jobs:
   update-trends:
@@ -28,7 +41,21 @@ jobs:
         
     - name: 运行趋势数据更新
       run: |
-        python trends_rising.py
+        # 检查是否使用历史查询模式
+        if [ "${{ github.event.inputs.use_history }}" = "true" ]; then
+          echo "🔍 使用历史查询模式（更快，更省钱）"
+          python trends_history.py
+        else
+          echo "🚀 使用标准模式（提交新任务）"
+          # 根据是周几决定使用哪种模式
+          if [ "$(date +%u)" = "1" ]; then
+            echo "📅 周一：使用标准模式获取最新数据"
+            python trends_rising.py
+          else
+            echo "📅 周四：使用历史查询模式节省成本"
+            python trends_history.py
+          fi
+        fi
         
     - name: 验证生成的数据
       run: |
@@ -52,7 +79,12 @@ jobs:
         if git diff --staged --quiet; then
           echo "📊 数据无变化，跳过提交"
         else
-          git commit -m "🔄 自动更新谷歌趋势数据 - $(date +'%Y-%m-%d %H:%M:%S')"
+          # 根据运行模式添加不同的提交消息
+          if [ "${{ github.event.inputs.use_history }}" = "true" ]; then
+            git commit -m "🔄 历史查询更新谷歌趋势数据 - $(date +'%Y-%m-%d %H:%M:%S')"
+          else
+            git commit -m "🆕 标准模式更新谷歌趋势数据 - $(date +'%Y-%m-%d %H:%M:%S')"
+          fi
           git push
           echo "✅ 数据更新已提交"
         fi

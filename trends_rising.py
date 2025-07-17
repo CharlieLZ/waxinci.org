@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-谷歌趋势新词洞察 - 一体化数据获取脚本
-功能：API调用 + 数据处理 + 网站格式输出
+谷歌趋势新词洞察 - 优化版本
+功能：标准模式API调用 + 并发处理 + 限流机制 + 网站格式输出
 """
 
 import json
@@ -10,16 +10,17 @@ import base64
 import time
 import logging
 import os
+import threading
+import concurrent.futures
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote_plus
 
-# 配置日志
+# 配置日志 - 生产环境只输出到控制台
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
-        logging.FileHandler('trends_crawler.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -28,7 +29,13 @@ logger = logging.getLogger(__name__)
 # API配置
 API_LOGIN = "chen8mei@yeah.net"
 API_PASSWORD = "128216638d1a29af"
-API_BASE_URL = "https://api.dataforseo.com/v3/keywords_data/google_trends/explore/live"
+API_BASE_URL = "https://api.dataforseo.com/v3/keywords_data/google_trends/explore"
+
+# 限流参数
+REQUEST_LIMIT = 240
+WINDOW_SECONDS = 60
+request_times = []
+request_lock = threading.Lock()
 
 def generate_google_trends_link(query, time_range="2024-01-01 2024-12-31"):
     """生成谷歌趋势链接"""
@@ -41,6 +48,10 @@ def generate_google_trends_link(query, time_range="2024-01-01 2024-12-31"):
     
     param_string = "&".join([f"{k}={quote_plus(str(v))}" for k, v in params.items()])
     return f"{base_url}?{param_string}"
+
+def generate_google_search_link(query):
+    """生成谷歌搜索链接"""
+    return f"https://www.google.com/search?q={quote_plus(query)}"
 
 def load_keywords_from_csv(limit=None):
     """从CSV文件加载关键词"""
@@ -71,115 +82,218 @@ def load_keywords_from_csv(limit=None):
         logger.error(f"读取CSV文件失败: {e}")
         return []
 
-def create_api_request(keywords, time_range="2024-01-01 2024-12-31"):
-    """创建API请求"""
-    return {
-        "keywords": keywords,
+def get_auth_header():
+    """获取认证头"""
+    credentials = f"{API_LOGIN}:{API_PASSWORD}"
+    base64_credentials = base64.b64encode(credentials.encode()).decode()
+    return {"Authorization": f"Basic {base64_credentials}"}
+
+# 限流包装器
+def rate_limited_request(func):
+    def wrapper(*args, **kwargs):
+        global request_times
+        while True:
+            with request_lock:
+                now = time.time()
+                request_times = [t for t in request_times if now - t < WINDOW_SECONDS]
+                if len(request_times) < REQUEST_LIMIT:
+                    request_times.append(now)
+                    break
+            logger.warning(f"触发限流，等待重试...")
+            time.sleep(0.1)
+        return func(*args, **kwargs)
+    return wrapper
+
+@rate_limited_request
+def submit_task(keyword, time_range="2024-01-01 2024-12-31", max_retries=3):
+    """提交单个任务到DataForSEO API"""
+    headers = {
+        **get_auth_header(),
+        "Content-Type": "application/json"
+    }
+    
+    payload = [{
+        "keywords": [keyword],
         "location_name": "United States",
         "language_name": "English",
         "date_from": time_range.split()[0],
         "date_to": time_range.split()[1],
-        "time_range": {
-            "date_from": time_range.split()[0],
-            "date_to": time_range.split()[1]
-        }
-    }
+        "item_types": ["google_trends_queries_list"],
+        "tag": keyword  # 用于识别任务对应的关键词
+    }]
+    
+    submit_url = f"{API_BASE_URL}/task_post"
+    
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"[{keyword}] 提交任务，第{attempt+1}次尝试")
+            response = requests.post(submit_url, headers=headers, json=payload, timeout=60)
+            response_data = response.json()
+            
+            if response_data.get("status_code") == 20000:
+                if "tasks" in response_data and response_data["tasks"]:
+                    task_id = response_data["tasks"][0].get("id")
+                    if task_id:
+                        logger.info(f"[{keyword}] 任务提交成功，任务ID: {task_id}")
+                        return task_id
+                    else:
+                        logger.error(f"[{keyword}] 任务ID不存在")
+                else:
+                    logger.error(f"[{keyword}] 响应中无tasks或为空")
+            else:
+                error_msg = response_data.get('status_message', '未知错误')
+                error_code = response_data.get('status_code', '未知状态码')
+                logger.error(f"[{keyword}] API错误: 代码={error_code}, 消息={error_msg}")
+                
+            time.sleep(2 ** attempt)
+        except Exception as e:
+            logger.error(f"[{keyword}] 网络错误: {str(e)}")
+            time.sleep(2 ** attempt)
+    
+    logger.error(f"[{keyword}] 任务提交失败，已尝试{max_retries}次")
+    return None
 
-def call_api(keywords, time_range="2024-01-01 2024-12-31"):
-    """调用DataForSEO API"""
+@rate_limited_request
+def get_ready_tasks():
+    """获取已完成任务列表"""
+    headers = get_auth_header()
+    ready_url = f"{API_BASE_URL}/tasks_ready"
+    
     try:
-        # 创建请求
-        request_data = create_api_request(keywords, time_range)
+        response = requests.get(ready_url, headers=headers, timeout=60)
+        response_data = response.json()
         
-        # 准备认证
-        auth_string = f"{API_LOGIN}:{API_PASSWORD}"
-        auth_bytes = auth_string.encode('ascii')
-        auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+        if response_data.get("status_code") != 20000:
+            logger.error(f"获取已完成任务失败: {response_data.get('status_message', '未知错误')}")
+            return []
         
-        headers = {
-            'Authorization': f'Basic {auth_b64}',
-            'Content-Type': 'application/json'
+        # 提取所有已完成任务ID
+        all_ready_tasks = []
+        for task in response_data.get("tasks", []):
+            result = task.get("result")
+            if isinstance(result, list) and result:
+                all_ready_tasks.extend(result)
+        
+        logger.info(f"找到 {len(all_ready_tasks)} 个已完成任务")
+        return all_ready_tasks
+        
+    except Exception as e:
+        logger.error(f"获取已完成任务失败: {e}")
+        return []
+
+@rate_limited_request
+def get_task_result(task_id):
+    """获取任务结果"""
+    headers = get_auth_header()
+    result_url = f"{API_BASE_URL}/task_get/{task_id}"
+    
+    try:
+        response = requests.get(result_url, headers=headers, timeout=60)
+        response_data = response.json()
+        
+        if response_data.get("status_code") == 20000:
+            if "tasks" in response_data and response_data["tasks"]:
+                task_result = response_data["tasks"][0]
+                if task_result.get("status_code") == 20000:
+                    # 获取任务标签（关键词）
+                    task_data = task_result.get("data", {})
+                    keyword = task_data.get("tag")
+                    return task_result.get("result"), keyword
+                else:
+                    logger.error(f"[任务ID: {task_id}] 任务执行失败")
+            else:
+                logger.error(f"[任务ID: {task_id}] 结果中无tasks或为空")
+        else:
+            logger.error(f"[任务ID: {task_id}] API错误")
+            
+    except Exception as e:
+        logger.error(f"[任务ID: {task_id}] 获取结果失败: {e}")
+    
+    return None, None
+
+def extract_related_queries(task_result, original_keyword):
+    """从任务结果中提取相关查询"""
+    related_queries = []
+    
+    if not task_result or not isinstance(task_result, list):
+        return related_queries
+    
+    if not task_result[0] or not isinstance(task_result[0], dict):
+        return related_queries
+    
+    result_item = task_result[0]
+    
+    if "items" not in result_item or not result_item["items"]:
+        return related_queries
+    
+    for item in result_item["items"]:
+        if item.get("type") == "google_trends_queries_list":
+            queries_data = item.get("data", {})
+            
+            for category, query_list in queries_data.items():
+                if category in ["top", "rising"] and isinstance(query_list, list):
+                    for query_item in query_list:
+                        query_text = query_item.get("query")
+                        if query_text:
+                            growth_rate = query_item.get("value")
+                            
+                            if category == "rising":
+                                if growth_rate == "BREAKOUT":
+                                    numeric_growth_rate = 10000
+                                else:
+                                    try:
+                                        numeric_growth_rate = float(growth_rate) if growth_rate is not None else 0
+                                    except:
+                                        numeric_growth_rate = 0
+                            else:
+                                numeric_growth_rate = 0
+                            
+                            related_queries.append({
+                                "query": query_text,
+                                "value": growth_rate,
+                                "numeric_value": numeric_growth_rate,
+                                "category": category,
+                                "trends_link": generate_google_trends_link(query_text),
+                                "search_link": generate_google_search_link(query_text)
+                            })
+            break
+    
+    logger.info(f"[{original_keyword}] 提取到 {len(related_queries)} 个相关查询")
+    return related_queries
+
+def process_tasks_batch(task_ids_with_keywords, max_workers=5):
+    """并发处理多个已完成的任务"""
+    results = {}
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_task = {
+            executor.submit(get_task_result, task_id): (task_id, keyword) 
+            for task_id, keyword in task_ids_with_keywords
         }
         
-        # 发送请求
-        logger.info(f"正在调用API，关键词数量: {len(keywords)}")
-        response = requests.post(
-            API_BASE_URL,
-            headers=headers,
-            json=[request_data],
-            timeout=30
-        )
-        
-        response.raise_for_status()
-        result = response.json()
-        
-        # 检查API响应
-        if result.get('status_code') != 20000:
-            logger.error(f"API调用失败: {result.get('status_message', '未知错误')}")
-            return None
-        
-        logger.info("API调用成功")
-        return result
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API请求失败: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"API调用异常: {e}")
-        return None
-
-def process_api_response(api_result, time_range="2024-01-01 2024-12-31"):
-    """处理API响应数据，转换为网站格式"""
-    if not api_result or not api_result.get('tasks'):
-        logger.warning("API结果为空或格式不正确")
-        return {}
-    
-    processed_data = {}
-    
-    for task in api_result['tasks']:
-        if not task.get('result'):
-            continue
-            
-        # 获取关键词
-        keywords = task['data'].get('keywords', [])
-        if not keywords:
-            continue
-            
-        keyword = keywords[0]  # 获取第一个关键词作为种子关键词
-        
-        # 处理结果
-        rising_queries = []
-        
-        for item in task['result']:
-            if not isinstance(item, dict):
-                continue
-            
-            for sub_item in item.get("items", []):
-                if sub_item.get("type") == "google_trends_queries_list":
-                    data = sub_item.get("data", {})
-                    
-                    # 只处理rising查询
-                    if "rising" in data:
-                        for query in data["rising"][:10]:  # 只取前10个
-                            query_text = query.get("query", "")
-                            growth_value = query.get("value", 0)
-                            
-                            # 网站格式的查询对象
-                            rising_query = {
-                                "query": query_text,
-                                "value": growth_value,  # 保持原有的增长率
-                                "link": generate_google_trends_link(query_text, time_range)
-                            }
-                            rising_queries.append(rising_query)
-        
-        # 如果有rising查询，添加到结果中
-        if rising_queries:
-            processed_data[keyword] = {
-                "rising": rising_queries
-            }
-            logger.info(f"✅ 处理完成: {keyword} ({len(rising_queries)} 个rising查询)")
-    
-    return processed_data
+        for future in concurrent.futures.as_completed(future_to_task):
+            task_id, keyword = future_to_task[future]
+            try:
+                task_result, result_keyword = future.result()
+                
+                # 使用任务结果中的关键词或指定的关键词
+                keyword_to_use = result_keyword if result_keyword else keyword
+                if not keyword_to_use:
+                    keyword_to_use = f"未知关键词_{task_id[-8:]}"
+                
+                if task_result:
+                    related_queries = extract_related_queries(task_result, keyword_to_use)
+                    if related_queries:
+                        results[keyword_to_use] = {
+                            "rising": [q for q in related_queries if q["category"] == "rising"]
+                        }
+                        logger.info(f"[{keyword_to_use}] 处理完成，获取到 {len(related_queries)} 个相关查询")
+                else:
+                    logger.error(f"[{keyword_to_use}] 获取结果失败")
+            except Exception as e:
+                logger.error(f"[任务ID: {task_id}] 处理异常: {e}")
+                
+    return results
 
 def save_website_data(data, filename="trending_data.json"):
     """保存网站格式的数据"""
@@ -210,34 +324,89 @@ def save_website_data(data, filename="trending_data.json"):
         return False
 
 def main():
-    """主函数"""
-    logger.info("开始运行谷歌趋势新词洞察脚本")
+    """主函数 - 使用标准模式的优化工作流程"""
+    logger.info("开始运行谷歌趋势新词洞察脚本（标准模式 - 优化版）")
     
     try:
         # 加载关键词
-        keywords = load_keywords_from_csv(limit=100)  # 限制100个关键词
+        keywords = load_keywords_from_csv(limit=100)
         if not keywords:
             logger.error("未能加载关键词，退出程序")
             return
         
-        # 调用API
-        api_result = call_api(keywords)
-        if not api_result:
-            logger.error("API调用失败，退出程序")
+        # 第一步：并发提交所有任务
+        logger.info(f"开始并发提交 {len(keywords)} 个任务...")
+        task_id_map = {}
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            future_to_keyword = {
+                executor.submit(submit_task, keyword): keyword 
+                for keyword in keywords
+            }
+            
+            for future in concurrent.futures.as_completed(future_to_keyword):
+                keyword = future_to_keyword[future]
+                try:
+                    task_id = future.result()
+                    if task_id:
+                        task_id_map[task_id] = keyword
+                        logger.info(f"[{keyword}] 任务提交成功")
+                except Exception as e:
+                    logger.error(f"[{keyword}] 任务提交异常: {e}")
+        
+        logger.info(f"成功提交 {len(task_id_map)} 个任务")
+        
+        if not task_id_map:
+            logger.error("没有成功提交的任务，退出程序")
             return
         
-        # 处理数据
-        processed_data = process_api_response(api_result)
-        if not processed_data:
-            logger.warning("未能处理出有效数据")
-            return
+        # 第二步：轮询等待任务完成
+        logger.info("开始轮询等待任务完成...")
+        pending_task_ids = set(task_id_map.keys())
+        check_interval = 15  # 15秒检查一次
+        all_processed_data = {}
         
-        # 保存网站数据
-        success = save_website_data(processed_data)
-        if success:
-            logger.info("脚本运行完成")
+        while pending_task_ids:
+            logger.info(f"还有 {len(pending_task_ids)} 个任务等待完成，检查任务状态...")
+            ready_tasks = get_ready_tasks()
+            
+            # 找出我们正在等待的已完成任务
+            ready_task_ids = []
+            for task in ready_tasks:
+                task_id = task.get("id")
+                if task_id in pending_task_ids:
+                    ready_task_ids.append(task_id)
+            
+            if ready_task_ids:
+                logger.info(f"发现 {len(ready_task_ids)} 个新完成的任务")
+                
+                # 准备批量处理
+                tasks_to_process = [(task_id, task_id_map[task_id]) for task_id in ready_task_ids]
+                
+                # 并发处理已完成的任务
+                batch_results = process_tasks_batch(tasks_to_process, max_workers=8)
+                all_processed_data.update(batch_results)
+                
+                # 从待处理列表中移除已处理的任务
+                for task_id in ready_task_ids:
+                    pending_task_ids.remove(task_id)
+                
+                logger.info(f"已处理 {len(ready_task_ids)} 个任务，还剩 {len(pending_task_ids)} 个任务")
+            else:
+                logger.info("没有新完成的任务，继续等待...")
+            
+            if pending_task_ids:
+                time.sleep(check_interval)
+        
+        # 第三步：保存数据
+        if all_processed_data:
+            success = save_website_data(all_processed_data)
+            if success:
+                logger.info(f"脚本运行完成，共处理 {len(all_processed_data)} 个关键词")
+            else:
+                logger.error("数据保存失败")
         else:
-            logger.error("数据保存失败")
+            logger.warning("未能处理出有效数据")
     
     except Exception as e:
         logger.error(f"脚本运行异常: {e}")
