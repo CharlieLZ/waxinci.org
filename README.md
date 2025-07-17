@@ -214,4 +214,4 @@ schedule:
 
 **为哥飞群友服务 · 免费版本额度有限**
 
-如觉得好用请成为付费用户（[trend.new](https://trend.new)）支持我有更好的动力继续完善本产品。 
+如觉得好用请成为付费用户（[trend.new](https://trend.new)）支持我有更好的动力继续完善本产品。 测试GitHub Pages部署
