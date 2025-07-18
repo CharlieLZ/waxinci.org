@@ -23,6 +23,7 @@ resources
 guide
 format
 model
+apk
 layout
 ideas
 starter
@@ -30,7 +31,8 @@ cataloger
 dashboard
 designer
 uploader
-downloader
+download
+android
 scraper
 crawler
 syncer
